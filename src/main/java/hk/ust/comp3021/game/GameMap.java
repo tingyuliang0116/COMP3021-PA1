@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -34,7 +35,10 @@ public class GameMap {
      */
     public GameMap(int maxWidth, int maxHeight, Set<Position> destinations, int undoLimit) {
         // TODO
-        throw new NotImplementedException();
+        int width =maxWidth;
+        int height=maxHeight;
+        Set<Position> destination=destinations;
+        int undolimit=undoLimit;
     }
 
     /**
@@ -74,7 +78,12 @@ public class GameMap {
      */
     public static GameMap parse(String mapText) {
         // TODO
-        throw new NotImplementedException();
+        String [] gamemap = mapText.split("/n");
+        Set<Position> des=new HashSet<>();
+        for(int i=1;i<gamemap.length;i++){
+           des.add(new Position(gamemap[i].indexOf('@'),i-1));
+        }
+        return new GameMap(gamemap[1].length(),gamemap.length-1,des,Integer.parseInt(gamemap[0]));
     }
 
     /**
