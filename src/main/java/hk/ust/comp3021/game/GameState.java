@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -27,24 +28,14 @@ public class GameState {
      *
      * @param map the game map from which to create this game state.
      */
-    Set<Position> destination;
-    int undolimit;
-    Set<Position> wall;
-    Set<Position> playerposition;
-    Set<Position> BoxId;
-    GameMap initmap;
+    final GameMap initmap;
     GameMap thismap;
+    GameState checkpoint;
 
     public GameState(@NotNull GameMap map) {
-
         // TODO
-        this.destination=map.destination;
-        this.undolimit=map.undolimit;
-        this.wall=map.wall;
-        this.playerposition=map.playerposition;
-        this.BoxId=map.BoxId;
         initmap=map;
-        thismap=initmap;
+        thismap=map;
     }
 
     /**
@@ -55,8 +46,7 @@ public class GameState {
      */
     public @Nullable Position getPlayerPositionById(int id) {
         // TODO
-        Position[] p = playerposition.toArray(new Position[playerposition.size()]);
-        return p[0];
+        return thismap.player.get(id);
     }
 
     /**
@@ -66,7 +56,13 @@ public class GameState {
      */
     public @NotNull Set<Position> getAllPlayerPositions() {
         // TODO
-        return playerposition;
+        Set<Position> t=new HashSet<>();
+        for(int i=0;i<26;i++){
+            if((thismap.player.get(i)!=null)){
+                t.add(getPlayerPositionById(i));
+            }
+        }
+        return t;
     }
     /**
      * Get the entity that is currently at the given position.
@@ -76,14 +72,19 @@ public class GameState {
      */
     public @Nullable Entity getEntity(@NotNull Position position) {
         // TODO
-        if(wall.contains(position)){
+        if(thismap.wall.contains(position)){
             return new Wall();
         }
-        if(BoxId.contains(position)){
-            return new Box(0);
-        }
-        if(playerposition.contains(position)){
-            return new Player(0);
+        for(int i=0;i<26;i++){
+            if(thismap.box.get(i)==null || thismap.player.get(i)==null){
+                continue;
+            }
+            else if(thismap.box.get(i).contains(position)){
+                return new Box(i);
+            }
+            else if(thismap.player.get(i).equals(position)){
+                return new Player(i);
+            }
         }
         return new Empty();
     }
@@ -96,7 +97,7 @@ public class GameState {
      */
     public @NotNull @Unmodifiable Set<Position> getDestinations() {
         // TODO
-        return destination;
+        return thismap.destination;
     }
 
     /**
@@ -108,7 +109,7 @@ public class GameState {
      */
     public Optional<Integer> getUndoQuota() {
         // TODO
-        return Optional.of(undolimit);
+        return Optional.of(thismap.undolimit);
     }
 
     /**
@@ -119,9 +120,9 @@ public class GameState {
      */
     public boolean isWin() {
 // TODO
-        Set<Position> tes=destination;
-        for(Position a:BoxId){
-            if(tes.contains(a)){
+        Set<Position> tes=thismap.destination;
+        for(Position a:thismap.destination){
+            if(thismap.getEntity(a) instanceof Box){
                 tes.remove(a);
             }
         }
@@ -130,30 +131,7 @@ public class GameState {
         }
         return false;
     }
-    public void putEntity(Position position, Entity entity) {
-        // TODO`
-        if(entity instanceof Box){
-            BoxId.add(position);
-        }
-        if(entity instanceof Wall){
-            wall.add(position);
-        }
-        if(entity instanceof Player){
-            playerposition.add(position);
-        }
-    }
-    public void removeEntity(Position position, Entity entity) {
-        // TODO`
-        if(entity instanceof Box){
-            BoxId.remove(position);
-        }
-        if(entity instanceof Wall){
-            wall.remove(position);
-        }
-        if(entity instanceof Player){
-            playerposition.remove(position);
-        }
-    }
+
     /**
      * Move the entity from one position to another.
      * This method assumes the validity of this move is ensured.
@@ -165,8 +143,8 @@ public class GameState {
     public void move(Position from, Position to) {
         // TODO
         Entity fr=getEntity(from);
-        putEntity(to,fr);
-        removeEntity(from,fr);
+        thismap.putEntity(to,fr);
+        thismap.removeEntity(from,fr);
     }
 
     /**
@@ -179,11 +157,8 @@ public class GameState {
      */
     public void checkpoint() {
         // TODO
-        destination=thismap.destination;
-        undolimit=thismap.undolimit;
-        wall=thismap.getWall();
-        playerposition=thismap.playerposition;
-        BoxId=thismap.getBoxPosition(0);
+        checkpoint=new GameState(thismap);
+
     }
 
     /**
@@ -195,7 +170,12 @@ public class GameState {
      */
     public void undo() {
         // TODO
-        checkpoint();
+        if(checkpoint==null){
+            thismap=initmap;
+        }
+        else{
+            thismap=checkpoint.thismap;
+        }
     }
 
     /**
@@ -206,7 +186,7 @@ public class GameState {
      */
     public int getMapMaxWidth() {
         // TODO
-        return thismap.getMaxWidth();
+        return thismap.width;
     }
 
     /**
@@ -217,6 +197,6 @@ public class GameState {
      */
     public int getMapMaxHeight() {
         // TODO
-        return thismap.getMaxHeight();
+        return thismap.height;
     }
 }

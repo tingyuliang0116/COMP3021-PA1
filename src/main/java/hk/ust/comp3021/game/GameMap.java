@@ -25,8 +25,8 @@ public class GameMap {
     Set<Position> destination;
     int undolimit;
     Set<Position> wall;
-    Set<Position> playerposition;
-    Set<Position> BoxId;
+    HashMap<Integer,Position> player;
+    HashMap<Integer,List<Position>> box;
 
     /**
      * Create a new GameMap with width, height, set of box destinations and undo limit.
@@ -46,11 +46,11 @@ public class GameMap {
         this.destination=destinations;
         this.undolimit=undoLimit;
     }
-    public GameMap(int maxWidth, int maxHeight, Set<Position> destinations, int undoLimit,Set<Position> wall, Set<Position> playerpoisition,Set<Position> BoxId) {
+    public GameMap(int maxWidth, int maxHeight, Set<Position> destinations, int undoLimit,Set<Position> wall, HashMap<Integer,Position> player,HashMap<Integer,List<Position>> box) {
         // TODO
         this.wall=wall;
-        this.BoxId=BoxId;
-        this.playerposition=playerpoisition;
+        this.box=box;
+        this.player=player;
         this.width=maxWidth;
         this.height=maxHeight;
         this.destination=destinations;
@@ -96,37 +96,61 @@ public class GameMap {
         String [] gamemap = mapText.split("\\r?\\n");
         Set<Position> des=new HashSet<>();
         Set<Position> wall=new HashSet<>();
-        Set<Position> playerposition=new HashSet<>();
-        Set<Position> BoxId=new HashSet<>();
+        HashMap<Integer,Position> player= new HashMap<>();
+        HashMap<Integer,List<Position>> box=new HashMap<>();
+        for( char c = 'a'; c <= 'z'; ++c){
+            player.put((int)(c-'a'),null);
+            box.put((int)(c-'a'),null);
+        }
+        int w=gamemap[1].length();
         for(int i=1;i<gamemap.length;i++){
-            for(int j=0;j<gamemap[1].length();j++) {
+            if(gamemap[i].length()>w){
+                w=gamemap[i].length();
+            }
+            for(int j=0;j<gamemap[i].length();j++) {
                 if (gamemap[i].charAt(j)=='@'){
                     des.add(new Position(j, i-1));
                 }
                 if (gamemap[i].charAt(j)=='#') {
                     wall.add(new Position(j, i-1));
                 }
-                if (gamemap[i].charAt(j)=='A') {
-                    playerposition.add(new Position(j, i-1));
+                if (Character.isAlphabetic(gamemap[i].charAt(j)) && Character.isUpperCase(gamemap[i].charAt(j))) {
+                    if(player.get(i)!=null){
+                        throw new IllegalArgumentException();
+                    }
+                    player.put((int)(gamemap[i].charAt(j)-'A'),new Position(j,i-1));
                 }
-                if (gamemap[i].charAt(j)=='a') {
-                    BoxId.add(new Position(j, i-1));
+                if (Character.isAlphabetic(gamemap[i].charAt(j)) && Character.isLowerCase(gamemap[i].charAt(j))) {
+                    if(box.get((int)(gamemap[i].charAt(j)-'a'))==null){
+                        box.put((int)(gamemap[i].charAt(j)-'a'),new ArrayList<>());
+                    }
+                    box.get((int)(gamemap[i].charAt(j)-'a')).add(new Position(j,i-1));
+
                 }
             }
         }
         if(Integer.parseInt(gamemap[0])<0 && Integer.parseInt(gamemap[0])!=-1){
             throw new IllegalArgumentException();
         }
-        if(playerposition.size()==0){
+        int playernum=0;
+        int boxcount=0;
+        for(int i=0;i<26;i++){
+            if(player.get(i)!=null){
+                if(box.get(i)==null){
+                    throw new IllegalArgumentException();
+                }
+                boxcount+=box.get(i).size();
+                playernum+=1;
+            }
+        }
+        if(playernum==0){
             throw new IllegalArgumentException();
         }
-        if(playerposition.size()>1){
+        if((boxcount!=des.size())){
             throw new IllegalArgumentException();
         }
-        if((BoxId.size()!=des.size())){
-            throw new IllegalArgumentException();
-        }
-        return new GameMap(gamemap[1].length(),gamemap.length-1,des,Integer.parseInt(gamemap[0]),wall,playerposition,BoxId);
+
+        return new GameMap(w,gamemap.length-1,des,Integer.parseInt(gamemap[0]),wall,player,box);
     }
     /**
      * Get the entity object at the given position.
@@ -140,14 +164,18 @@ public class GameMap {
         if(wall.contains(position)){
             return new Wall();
         }
-        if(BoxId.contains(position)){
-            return new Box(0);
-        }
-        if(playerposition.contains(position)){
-            return new Player(0);
+        for(int i=0;i<26;i++){
+            if(box.get(i)==null || player.get(i)==null){
+                continue;
+            }
+            else if(box.get(i).contains(position)){
+                return new Box(i);
+            }
+            else if(player.get(i).equals(position)){
+                return new Player(i);
+            }
         }
         return new Empty();
-
     }
 
     /**
@@ -159,16 +187,30 @@ public class GameMap {
     public void putEntity(Position position, Entity entity) {
         // TODO`
         if(entity instanceof Box){
-           BoxId.add(position);
+            if(box.get(((Box) entity).getPlayerId())==null){
+                box.put(((Box) entity).getPlayerId(),new ArrayList<>());
+            }
+            box.get(((Box) entity).getPlayerId()).add(position);
         }
         if(entity instanceof Wall){
             wall.add(position);
         }
         if(entity instanceof Player){
-            playerposition.add(position);
+            player.put(((Player) entity).getId(), position);
         }
     }
-
+    public void removeEntity(Position position, Entity entity) {
+        // TODO`
+        if(entity instanceof Box){
+            box.get(((Box) entity).getPlayerId()).remove(position);
+        }
+        if(entity instanceof Wall){
+            wall.remove(position);
+        }
+        if(entity instanceof Player){
+            player.put(((Player) entity).getId(),null);
+        }
+    }
     /**
      * Get all box destination positions as a set in the game map.
      *
@@ -197,7 +239,11 @@ public class GameMap {
     public Set<Integer> getPlayerIds() {
         // TODO
         Set<Integer> re=new HashSet<>();
-        re.add(0);
+        for(int i=0;i<26;i++){
+            if(player.get(i)!=null){
+                re.add(i);
+            }
+        }
         return re;
     }
 
@@ -219,13 +265,6 @@ public class GameMap {
     public int getMaxHeight() {
         // TODO
         return height;
-    }
-
-    public Set<Position> getWall(){
-        return wall;
-    }
-    public Set<Position> getBoxPosition(int id) {
-        return BoxId;
     }
 
 }

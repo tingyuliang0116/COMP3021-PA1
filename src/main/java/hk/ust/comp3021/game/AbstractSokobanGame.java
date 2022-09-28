@@ -40,22 +40,41 @@ public abstract class AbstractSokobanGame implements SokobanGame {
      */
     protected ActionResult processAction(@NotNull Action action) {
         // TODO
-        Position playerposition=state.getPlayerPositionById(0);
+        Position playerposition=state.getPlayerPositionById(action.getInitiator());
         if(action instanceof Move.Down){
             Position t= new Position(playerposition.x(),playerposition.y()+1);
             if(state.getEntity(t) instanceof Wall){
                 return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
             }
-            else{
-                state.move(playerposition,t);
-                return new ActionResult.Success(action);
+            else if(state.getEntity(t) instanceof Box){
+                Position m=new Position(t.x(),t.y()+1);
+                if(state.getEntity(m) instanceof Wall){
+                    return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
+                }
+                else{
+                    state.move(playerposition,t);
+                    state.move(t,m);
+                    return new ActionResult.Success(action);
+                }
             }
-
+            state.move(playerposition,t);
+            return new ActionResult.Success(action);
         }
         else if(action instanceof Move.Up){
             Position t= new Position(playerposition.x(),playerposition.y()-1);
             if(state.getEntity(t) instanceof Wall){
                 return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
+            }
+            else if(state.getEntity(t) instanceof Box){
+                Position m=new Position(t.x(),t.y()-1);
+                if(state.getEntity(m) instanceof Wall){
+                    return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
+                }
+                else{
+                    state.move(playerposition,t);
+                    state.move(t,m);
+                    return new ActionResult.Success(action);
+                }
             }
             state.move(playerposition,t);
             return new ActionResult.Success(action);
@@ -65,6 +84,17 @@ public abstract class AbstractSokobanGame implements SokobanGame {
             if(state.getEntity(t) instanceof Wall){
                 return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
             }
+            else if(state.getEntity(t) instanceof Box){
+                Position m=new Position(t.x()-1,t.y());
+                if(state.getEntity(m) instanceof Wall){
+                    return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
+                }
+                else{
+                    state.move(playerposition,t);
+                    state.move(t,m);
+                    return new ActionResult.Success(action);
+                }
+            }
             state.move(playerposition,t);
             return new ActionResult.Success(action);
         }
@@ -72,6 +102,17 @@ public abstract class AbstractSokobanGame implements SokobanGame {
             Position t= new Position(playerposition.x()+1,playerposition.y());
             if(state.getEntity(t) instanceof Wall){
                 return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
+            }
+            else if(state.getEntity(t) instanceof Box){
+                Position m=new Position(t.x()+1,t.y());
+                if(state.getEntity(m) instanceof Wall){
+                    return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
+                }
+                else{
+                    state.move(playerposition,t);
+                    state.move(t,m);
+                    return new ActionResult.Success(action);
+                }
             }
             state.move(playerposition,t);
             return new ActionResult.Success(action);

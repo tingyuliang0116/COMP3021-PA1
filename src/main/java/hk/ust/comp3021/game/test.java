@@ -26,24 +26,45 @@ public class test {
         String [] gamemap = mapText.split("\\r?\\n");
         Set<Position> des=new HashSet<>();
         Set<Position> wall=new HashSet<>();
-        Set<Position> playerposition=new HashSet<>();
-        Set<Position> BoxId=new HashSet<>();
+        HashMap<Integer,Position> player= new HashMap<>();
+        HashMap<Integer,List<Position>> box=new HashMap<>();
+        for( char c = 'a'; c <= 'z'; ++c){
+            player.put((int)(c-'a'),null);
+            box.put((int)(c-'a'),null);
+        }
+        int w=gamemap[1].length();
         for(int i=1;i<gamemap.length;i++){
-            for(int j=0;j<gamemap[1].length();j++) {
+            if(gamemap[i].length()>w){
+                w=gamemap[i].length();
+            }
+            for(int j=0;j<gamemap[i].length();j++) {
                 if (gamemap[i].charAt(j)=='@'){
                     des.add(new Position(j, i-1));
                 }
                 if (gamemap[i].charAt(j)=='#') {
                     wall.add(new Position(j, i-1));
                 }
-                if (gamemap[i].charAt(j)=='A') {
-                    playerposition.add(new Position(j, i-1));
+                if (Character.isAlphabetic(gamemap[i].charAt(j)) && Character.isUpperCase(gamemap[i].charAt(j))) {
+                    if(player.get(i)!=null){
+                        throw new IllegalArgumentException();
+                    }
+                    player.put((int)(gamemap[i].charAt(j)-'A'),new Position(j,i-1));
                 }
-                if (gamemap[i].charAt(j)=='a') {
-                    BoxId.add(new Position(j, i-1));
+                if (Character.isAlphabetic(gamemap[i].charAt(j)) && Character.isLowerCase(gamemap[i].charAt(j))) {
+                    if(box.get((int)(gamemap[i].charAt(j)-'a'))==null){
+                        box.put((int)(gamemap[i].charAt(j)-'a'),new ArrayList<>());
+                    }
+                    box.get((int)(gamemap[i].charAt(j)-'a')).add(new Position(j,i-1));
+
                 }
             }
         }
+        List<Position> tes=box.get(0);
+
+        System.out.println(tes);
+
+
+
 
 
 
