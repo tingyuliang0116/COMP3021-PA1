@@ -1,10 +1,7 @@
 package hk.ust.comp3021.tui;
 
 
-import hk.ust.comp3021.game.AbstractSokobanGame;
-import hk.ust.comp3021.game.GameState;
-import hk.ust.comp3021.game.InputEngine;
-import hk.ust.comp3021.game.RenderingEngine;
+import hk.ust.comp3021.game.*;
 import hk.ust.comp3021.utils.NotImplementedException;
 
 /**
@@ -32,12 +29,14 @@ public class TerminalSokobanGame extends AbstractSokobanGame {
         this.renderingEngine = renderingEngine;
         // TODO
         // Check the number of players
-        throw new NotImplementedException();
+        if(this.state.getAllPlayerPositions().size()>2){
+            throw new IllegalArgumentException();
+        }
     }
 
     @Override
     public void run() {
         // TODO
-        throw new NotImplementedException();
+
     }
 }

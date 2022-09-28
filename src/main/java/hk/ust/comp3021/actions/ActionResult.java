@@ -34,6 +34,8 @@ public abstract sealed class ActionResult {
         public Success(@NotNull Action action) {
             super(action);
         }
+
+
     }
 
     /**

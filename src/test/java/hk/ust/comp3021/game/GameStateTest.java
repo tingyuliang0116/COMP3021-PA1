@@ -42,7 +42,6 @@ class GameStateTest {
         final var gameState = new GameState(testMap);
         gameState.move(Position.of(3, 1), Position.of(4, 1));
         gameState.move(Position.of(3, 2), Position.of(4, 2));
-
         assertTrue(gameState.isWin());
     }
 
@@ -57,7 +56,6 @@ class GameStateTest {
             ######
             """
         ));
-
         gameState.move(Position.of(1, 1), Position.of(2, 1));
         assertEquals(Position.of(2, 1), gameState.getPlayerPositionById(0));
     }

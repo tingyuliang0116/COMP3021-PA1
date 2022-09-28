@@ -26,7 +26,6 @@ class AbstractSokobanGameTest {
             """;
         final var testMap = TestHelper.parseGameMap(mapText);
         final var gameState = spy(new GameState(testMap));
-
         final var game = new SokobanGameForTesting(gameState);
         final var result = game.feedActionForProcessing(new Move.Down(0));
 

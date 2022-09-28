@@ -6,9 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.ArrayList;
 
 /**
  * A Sokoban game board.
@@ -21,11 +20,18 @@ import java.util.Set;
  * GameBoard is capable to create many GameState instances, each representing an ongoing game.
  */
 public class GameMap {
+    int width;
+    int height;
+    Set<Position> destination;
+    int undolimit;
+    Set<Position> wall;
+    Set<Position> playerposition;
+    Set<Position> BoxId;
 
     /**
      * Create a new GameMap with width, height, set of box destinations and undo limit.
      *
-     * @param maxWidth     Width of the game map.
+     * @param maxWdth     Width of the game map.
      * @param maxHeight    Height of the game map.
      * @param destinations Set of box destination positions.
      * @param undoLimit    Undo limit.
@@ -35,12 +41,21 @@ public class GameMap {
      */
     public GameMap(int maxWidth, int maxHeight, Set<Position> destinations, int undoLimit) {
         // TODO
-        int width =maxWidth;
-        int height=maxHeight;
-        Set<Position> destination=destinations;
-        int undolimit=undoLimit;
+        this.width=maxWidth;
+        this.height=maxHeight;
+        this.destination=destinations;
+        this.undolimit=undoLimit;
     }
-
+    public GameMap(int maxWidth, int maxHeight, Set<Position> destinations, int undoLimit,Set<Position> wall, Set<Position> playerpoisition,Set<Position> BoxId) {
+        // TODO
+        this.wall=wall;
+        this.BoxId=BoxId;
+        this.playerposition=playerpoisition;
+        this.width=maxWidth;
+        this.height=maxHeight;
+        this.destination=destinations;
+        this.undolimit=undoLimit;
+    }
     /**
      * Parses the map from a string representation.
      * The first line is undo limit.
@@ -78,14 +93,41 @@ public class GameMap {
      */
     public static GameMap parse(String mapText) {
         // TODO
-        String [] gamemap = mapText.split("/n");
+        String [] gamemap = mapText.split("\\r?\\n");
         Set<Position> des=new HashSet<>();
+        Set<Position> wall=new HashSet<>();
+        Set<Position> playerposition=new HashSet<>();
+        Set<Position> BoxId=new HashSet<>();
         for(int i=1;i<gamemap.length;i++){
-           des.add(new Position(gamemap[i].indexOf('@'),i-1));
+            for(int j=0;j<gamemap[1].length();j++) {
+                if (gamemap[i].charAt(j)=='@'){
+                    des.add(new Position(j, i-1));
+                }
+                if (gamemap[i].charAt(j)=='#') {
+                    wall.add(new Position(j, i-1));
+                }
+                if (gamemap[i].charAt(j)=='A') {
+                    playerposition.add(new Position(j, i-1));
+                }
+                if (gamemap[i].charAt(j)=='a') {
+                    BoxId.add(new Position(j, i-1));
+                }
+            }
         }
-        return new GameMap(gamemap[1].length(),gamemap.length-1,des,Integer.parseInt(gamemap[0]));
+        if(Integer.parseInt(gamemap[0])<0 && Integer.parseInt(gamemap[0])!=-1){
+            throw new IllegalArgumentException();
+        }
+        if(playerposition.size()==0){
+            throw new IllegalArgumentException();
+        }
+        if(playerposition.size()>1){
+            throw new IllegalArgumentException();
+        }
+        if((BoxId.size()!=des.size())){
+            throw new IllegalArgumentException();
+        }
+        return new GameMap(gamemap[1].length(),gamemap.length-1,des,Integer.parseInt(gamemap[0]),wall,playerposition,BoxId);
     }
-
     /**
      * Get the entity object at the given position.
      *
@@ -95,7 +137,17 @@ public class GameMap {
     @Nullable
     public Entity getEntity(Position position) {
         // TODO
-        throw new NotImplementedException();
+        if(wall.contains(position)){
+            return new Wall();
+        }
+        if(BoxId.contains(position)){
+            return new Box(0);
+        }
+        if(playerposition.contains(position)){
+            return new Player(0);
+        }
+        return new Empty();
+
     }
 
     /**
@@ -105,8 +157,16 @@ public class GameMap {
      * @param entity   the entity to put into game map.
      */
     public void putEntity(Position position, Entity entity) {
-        // TODO
-        throw new NotImplementedException();
+        // TODO`
+        if(entity instanceof Box){
+           BoxId.add(position);
+        }
+        if(entity instanceof Wall){
+            wall.add(position);
+        }
+        if(entity instanceof Player){
+            playerposition.add(position);
+        }
     }
 
     /**
@@ -116,7 +176,7 @@ public class GameMap {
      */
     public @NotNull @Unmodifiable Set<Position> getDestinations() {
         // TODO
-        throw new NotImplementedException();
+        return destination;
     }
 
     /**
@@ -126,7 +186,7 @@ public class GameMap {
      */
     public Optional<Integer> getUndoLimit() {
         // TODO
-        throw new NotImplementedException();
+        return Optional.of(undolimit);
     }
 
     /**
@@ -136,7 +196,9 @@ public class GameMap {
      */
     public Set<Integer> getPlayerIds() {
         // TODO
-        throw new NotImplementedException();
+        Set<Integer> re=new HashSet<>();
+        re.add(0);
+        return re;
     }
 
     /**
@@ -146,7 +208,7 @@ public class GameMap {
      */
     public int getMaxWidth() {
         // TODO
-        throw new NotImplementedException();
+        return width;
     }
 
     /**
@@ -156,6 +218,14 @@ public class GameMap {
      */
     public int getMaxHeight() {
         // TODO
-        throw new NotImplementedException();
+        return height;
     }
+
+    public Set<Position> getWall(){
+        return wall;
+    }
+    public Set<Position> getBoxPosition(int id) {
+        return BoxId;
+    }
+
 }

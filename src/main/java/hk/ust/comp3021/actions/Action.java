@@ -6,7 +6,6 @@ package hk.ust.comp3021.actions;
 public abstract sealed class Action permits InvalidInput, Move, Undo, Exit {
 
     protected final int initiator;
-
     /**
      * @return The id of the player who performed the action.
      */

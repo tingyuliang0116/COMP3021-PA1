@@ -5,7 +5,7 @@
     <option name="PROGRAM_PARAMETERS" value="$ProjectFileDir$/src/main/resources/map00.map" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="hk.ust.comp3021.*" />
+        <option name="PATTERN" value=".*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

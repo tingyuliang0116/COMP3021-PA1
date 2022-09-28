@@ -1,6 +1,6 @@
 package hk.ust.comp3021.game;
 
-import hk.ust.comp3021.entities.Entity;
+import hk.ust.comp3021.entities.*;
 import hk.ust.comp3021.utils.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,15 +22,29 @@ import java.util.Set;
  * <li>Undo quota left.</li>
  */
 public class GameState {
-
     /**
      * Create a running game state from a game map.
      *
      * @param map the game map from which to create this game state.
      */
+    Set<Position> destination;
+    int undolimit;
+    Set<Position> wall;
+    Set<Position> playerposition;
+    Set<Position> BoxId;
+    GameMap initmap;
+    GameMap thismap;
+
     public GameState(@NotNull GameMap map) {
+
         // TODO
-        throw new NotImplementedException();
+        this.destination=map.destination;
+        this.undolimit=map.undolimit;
+        this.wall=map.wall;
+        this.playerposition=map.playerposition;
+        this.BoxId=map.BoxId;
+        initmap=map;
+        thismap=initmap;
     }
 
     /**
@@ -41,7 +55,8 @@ public class GameState {
      */
     public @Nullable Position getPlayerPositionById(int id) {
         // TODO
-        throw new NotImplementedException();
+        Position[] p = playerposition.toArray(new Position[playerposition.size()]);
+        return p[0];
     }
 
     /**
@@ -51,9 +66,8 @@ public class GameState {
      */
     public @NotNull Set<Position> getAllPlayerPositions() {
         // TODO
-        throw new NotImplementedException();
+        return playerposition;
     }
-
     /**
      * Get the entity that is currently at the given position.
      *
@@ -62,7 +76,16 @@ public class GameState {
      */
     public @Nullable Entity getEntity(@NotNull Position position) {
         // TODO
-        throw new NotImplementedException();
+        if(wall.contains(position)){
+            return new Wall();
+        }
+        if(BoxId.contains(position)){
+            return new Box(0);
+        }
+        if(playerposition.contains(position)){
+            return new Player(0);
+        }
+        return new Empty();
     }
 
     /**
@@ -73,7 +96,7 @@ public class GameState {
      */
     public @NotNull @Unmodifiable Set<Position> getDestinations() {
         // TODO
-        throw new NotImplementedException();
+        return destination;
     }
 
     /**
@@ -85,7 +108,7 @@ public class GameState {
      */
     public Optional<Integer> getUndoQuota() {
         // TODO
-        throw new NotImplementedException();
+        return Optional.of(undolimit);
     }
 
     /**
@@ -96,9 +119,41 @@ public class GameState {
      */
     public boolean isWin() {
 // TODO
-        throw new NotImplementedException();
+        Set<Position> tes=destination;
+        for(Position a:BoxId){
+            if(tes.contains(a)){
+                tes.remove(a);
+            }
+        }
+        if(tes.size()==0){
+            return true;
+        }
+        return false;
     }
-
+    public void putEntity(Position position, Entity entity) {
+        // TODO`
+        if(entity instanceof Box){
+            BoxId.add(position);
+        }
+        if(entity instanceof Wall){
+            wall.add(position);
+        }
+        if(entity instanceof Player){
+            playerposition.add(position);
+        }
+    }
+    public void removeEntity(Position position, Entity entity) {
+        // TODO`
+        if(entity instanceof Box){
+            BoxId.remove(position);
+        }
+        if(entity instanceof Wall){
+            wall.remove(position);
+        }
+        if(entity instanceof Player){
+            playerposition.remove(position);
+        }
+    }
     /**
      * Move the entity from one position to another.
      * This method assumes the validity of this move is ensured.
@@ -109,7 +164,9 @@ public class GameState {
      */
     public void move(Position from, Position to) {
         // TODO
-        throw new NotImplementedException();
+        Entity fr=getEntity(from);
+        putEntity(to,fr);
+        removeEntity(from,fr);
     }
 
     /**
@@ -122,7 +179,11 @@ public class GameState {
      */
     public void checkpoint() {
         // TODO
-        throw new NotImplementedException();
+        destination=thismap.destination;
+        undolimit=thismap.undolimit;
+        wall=thismap.getWall();
+        playerposition=thismap.playerposition;
+        BoxId=thismap.getBoxPosition(0);
     }
 
     /**
@@ -134,7 +195,7 @@ public class GameState {
      */
     public void undo() {
         // TODO
-        throw new NotImplementedException();
+        checkpoint();
     }
 
     /**
@@ -145,7 +206,7 @@ public class GameState {
      */
     public int getMapMaxWidth() {
         // TODO
-        throw new NotImplementedException();
+        return thismap.getMaxWidth();
     }
 
     /**
@@ -156,6 +217,6 @@ public class GameState {
      */
     public int getMapMaxHeight() {
         // TODO
-        throw new NotImplementedException();
+        return thismap.getMaxHeight();
     }
 }
