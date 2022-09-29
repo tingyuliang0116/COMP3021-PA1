@@ -1,7 +1,6 @@
 package hk.ust.comp3021.game;
 
 import hk.ust.comp3021.entities.*;
-import hk.ust.comp3021.utils.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -25,8 +24,10 @@ public class GameMap {
     Set<Position> destination;
     int undolimit;
     Set<Position> wall;
+    Set<Position> empty;
     HashMap<Integer,Position> player;
     HashMap<Integer,List<Position>> box;
+
 
     /**
      * Create a new GameMap with width, height, set of box destinations and undo limit.
@@ -46,7 +47,8 @@ public class GameMap {
         this.destination=destinations;
         this.undolimit=undoLimit;
     }
-    public GameMap(int maxWidth, int maxHeight, Set<Position> destinations, int undoLimit,Set<Position> wall, HashMap<Integer,Position> player,HashMap<Integer,List<Position>> box) {
+    public GameMap(int maxWidth, int maxHeight, Set<Position> destinations, int undoLimit,Set<Position> wall,
+                   HashMap<Integer,Position> player, HashMap<Integer,List<Position>> box,Set<Position> empty) {
         this.wall=wall;
         this.box=box;
         this.player=player;
@@ -54,6 +56,7 @@ public class GameMap {
         this.height=maxHeight;
         this.destination=destinations;
         this.undolimit=undoLimit;
+        this.empty=empty;
     }
     /**
      * Parses the map from a string representation.
@@ -95,6 +98,7 @@ public class GameMap {
         String [] gamemap = mapText.split("\\r?\\n");
         Set<Position> des=new HashSet<>();
         Set<Position> wall=new HashSet<>();
+        Set<Position> empty=new HashSet<>();
         HashMap<Integer,Position> player= new HashMap<>();
         HashMap<Integer,List<Position>> box=new HashMap<>();
         for( char c = 'a'; c <= 'z'; ++c){
@@ -113,6 +117,9 @@ public class GameMap {
                 if (gamemap[i].charAt(j)=='#') {
                     wall.add(new Position(j, i-1));
                 }
+                if (gamemap[i].charAt(j)=='.') {
+                    empty.add(new Position(j, i-1));
+                }
                 if (Character.isAlphabetic(gamemap[i].charAt(j)) && Character.isUpperCase(gamemap[i].charAt(j))) {
                     if(player.get(i)!=null){
                         throw new IllegalArgumentException();
@@ -124,7 +131,6 @@ public class GameMap {
                         box.put((int)(gamemap[i].charAt(j)-'a'),new ArrayList<>());
                     }
                     box.get((int)(gamemap[i].charAt(j)-'a')).add(new Position(j,i-1));
-
                 }
             }
         }
@@ -149,7 +155,7 @@ public class GameMap {
             throw new IllegalArgumentException();
         }
 
-        return new GameMap(w,gamemap.length-1,des,Integer.parseInt(gamemap[0]),wall,player,box);
+        return new GameMap(w,gamemap.length-1,des,Integer.parseInt(gamemap[0]),wall,player,box,empty);
     }
     /**
      * Get the entity object at the given position.
@@ -166,11 +172,9 @@ public class GameMap {
         for(int i=0;i<26;i++){
             if(box.get(i)==null || player.get(i)==null){
                 continue;
-            }
-            else if(box.get(i).contains(position)){
+            } else if(box.get(i).contains(position)){
                 return new Box(i);
-            }
-            else if(player.get(i).equals(position)){
+            } else if(player.get(i).equals(position)){
                 return new Player(i);
             }
         }
@@ -197,6 +201,9 @@ public class GameMap {
         if(entity instanceof Player){
             player.put(((Player) entity).getId(), position);
         }
+        if(entity instanceof Empty){
+            empty.add(position);
+        }
     }
     public void removeEntity(Position position, Entity entity) {
         if(entity instanceof Box){
@@ -207,6 +214,9 @@ public class GameMap {
         }
         if(entity instanceof Player){
             player.put(((Player) entity).getId(),null);
+        }
+        if(entity instanceof Empty){
+            empty.remove(position);
         }
     }
     /**
@@ -266,3 +276,4 @@ public class GameMap {
     }
 
 }
+

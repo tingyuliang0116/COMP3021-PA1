@@ -2,7 +2,6 @@ package hk.ust.comp3021.tui;
 
 import hk.ust.comp3021.actions.*;
 import hk.ust.comp3021.game.InputEngine;
-import hk.ust.comp3021.utils.NotImplementedException;
 import hk.ust.comp3021.utils.StringResources;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,20 +38,15 @@ public class  TerminalInputEngine implements InputEngine {
         // TODO
         if(inputLine.equals(StringResources.EXIT_COMMAND_TEXT)){
             return new Exit(0);
-        }
-        else if(inputLine.equals("A") || inputLine.equals("H")){
+        } else if(inputLine.equals("A") || inputLine.equals("H")){
             return new Move.Left(0);
-        }
-        else if(inputLine.equals("S") || inputLine.equals("J")){
+        } else if(inputLine.equals("S") || inputLine.equals("J")){
             return new Move.Down(0);
-        }
-        else if(inputLine.equals("W") || inputLine.equals("K")){
+        } else if(inputLine.equals("W") || inputLine.equals("K")){
             return new Move.Up(0);
-        }
-        else if(inputLine.equals("D") || inputLine.equals("L")){
+        } else if(inputLine.equals("D") || inputLine.equals("L")){
             return new Move.Right(0);
-        }
-        else if(inputLine.equals("U")){
+        } else if(inputLine.equals("U")){
             return new Undo(0);
         }
         return new InvalidInput(0, StringResources.INVALID_INPUT_MESSAGE);

@@ -5,7 +5,6 @@ import hk.ust.comp3021.actions.ActionResult;
 import hk.ust.comp3021.actions.Exit;
 import hk.ust.comp3021.actions.InvalidInput;
 import hk.ust.comp3021.game.*;
-import hk.ust.comp3021.utils.NotImplementedException;
 import hk.ust.comp3021.utils.StringResources;
 
 import java.util.Optional;
@@ -52,6 +51,9 @@ public class TerminalSokobanGame extends AbstractSokobanGame {
                 break;
             }
             if(t instanceof InvalidInput){
+                renderingEngine.message(StringResources.INVALID_INPUT_MESSAGE);
+            }
+            if(processAction(t) instanceof ActionResult.Failed){
                 renderingEngine.message(StringResources.INVALID_INPUT_MESSAGE);
             }
             if(state.getUndoQuota()==Optional.of(0)){

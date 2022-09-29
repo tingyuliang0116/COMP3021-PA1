@@ -1,7 +1,6 @@
 package hk.ust.comp3021.game;
 
 import hk.ust.comp3021.entities.*;
-import hk.ust.comp3021.utils.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -31,6 +30,7 @@ public class GameState {
     int width;
     int height;
     Set<Position> destination=new HashSet<>();
+    Set<Position> empty=new HashSet<>();
     int undolimit;
     Set<Position> wall=new HashSet<>();
     HashMap<Integer,Position> player=new HashMap<>();
@@ -51,6 +51,9 @@ public class GameState {
         for(Position t:map.wall){
             wall.add(new Position(t.x(),t.y()));
         }
+        for(Position t:map.empty){
+            empty.add(new Position(t.x(),t.y()));
+        }
         for(int i=0;i<26;i++){
             if(map.player.get(i)!=null){
                 player.put(i,new Position(map.player.get(i).x(),map.player.get(i).y()));
@@ -63,7 +66,8 @@ public class GameState {
             }
         }
         thismap=map;
-        p.add(new GameMap(width,height,destination,undolimit,wall,player,box));
+
+        p.add(new GameMap(width,height,destination,undolimit,wall,player,box,empty));
     }
     /**
      * Get the current position of the player with the given id.
@@ -105,11 +109,9 @@ public class GameState {
         for(int i=0;i<26;i++){
             if(thismap.box.get(i)==null || thismap.player.get(i)==null){
                 continue;
-            }
-            else if(thismap.box.get(i).contains(position)){
+            } else if(thismap.box.get(i).contains(position)){
                 return new Box(i);
-            }
-            else if(thismap.player.get(i).equals(position)){
+            } else if(thismap.player.get(i).equals(position)){
                 return new Player(i);
             }
         }
@@ -147,7 +149,7 @@ public class GameState {
      */
     public boolean isWin() {
 // TODO
-        Set<Position> tes=thismap.destination;
+        Set<Position> tes=getDestinations();
 
         Set<Position> b=new HashSet<>();
         for(int i=0;i<26;i++){
@@ -208,8 +210,7 @@ public class GameState {
         // TODO
         if(p.size()==2){
             thismap=p.get(0);
-        }
-        else{
+        } else{
             thismap=p.get(p.size()-2);
         }
         thismap.undolimit--;

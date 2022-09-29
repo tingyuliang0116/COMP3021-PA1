@@ -2,14 +2,10 @@ package hk.ust.comp3021.game;
 
 import hk.ust.comp3021.actions.*;
 import hk.ust.comp3021.entities.Box;
-import hk.ust.comp3021.entities.Empty;
 import hk.ust.comp3021.entities.Player;
 import hk.ust.comp3021.entities.Wall;
-import hk.ust.comp3021.utils.NotImplementedException;
 import hk.ust.comp3021.utils.StringResources;
 import org.jetbrains.annotations.NotNull;
-
-import javax.xml.stream.events.ProcessingInstruction;
 
 /**
  * A base implementation of Sokoban Game.
@@ -32,6 +28,7 @@ public abstract class AbstractSokobanGame implements SokobanGame {
             return true;
         }
         return false;
+
     }
 
     /**
@@ -43,79 +40,83 @@ public abstract class AbstractSokobanGame implements SokobanGame {
         Position playerposition=state.getPlayerPositionById(action.getInitiator());
         if(action instanceof Move.Down){
             Position t= new Position(playerposition.x(),playerposition.y()+1);
-            if(state.getEntity(t) instanceof Wall){
+            if(state.getEntity(t) instanceof Wall || state.getEntity(t) instanceof Player){
                 return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
-            }
-            else if(state.thismap.box.get(action.getInitiator()).contains(t)){
-                Position m=new Position(t.x(),t.y()+1);
-                if(state.getEntity(m) instanceof Wall){
+            } else if(state.getEntity(t) instanceof Box){
+                if(state.thismap.box.get(action.getInitiator()).contains(t)){
+                    Position m=new Position(t.x(),t.y()+1);
+                    if(state.getEntity(m) instanceof Wall){
+                        return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
+                    } else{
+                        state.move(t,m);
+                    }
+                } else{
                     return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
-                }
-                else{
-                    state.move(t,m);
                 }
             }
             state.move(playerposition,t);
             state.checkpoint();
             return new ActionResult.Success(action);
-        }
-        else if(action instanceof Move.Up){
+        } else if(action instanceof Move.Up){
             Position t= new Position(playerposition.x(),playerposition.y()-1);
-            if(state.getEntity(t) instanceof Wall){
+            if(state.getEntity(t) instanceof Wall || state.getEntity(t) instanceof Player){
                 return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
-            }
-            else if(state.getEntity(t) instanceof Box){
-                Position m=new Position(t.x(),t.y()-1);
-                if(state.getEntity(m) instanceof Wall){
+            } else if(state.getEntity(t) instanceof Box){
+                if(state.thismap.box.get(action.getInitiator()).contains(t)){
+                    Position m=new Position(t.x(),t.y()-1);
+                    if(state.getEntity(m) instanceof Wall){
+                        return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
+                    } else{
+                        state.move(t,m);
+                    }
+                } else{
                     return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
-                }
-                else{
-                    state.move(t,m);
                 }
             }
             state.move(playerposition,t);
             state.checkpoint();
             return new ActionResult.Success(action);
-        }
-        else if(action instanceof Move.Left){
+        } else if(action instanceof Move.Left){
             Position t= new Position(playerposition.x()-1,playerposition.y());
-            if(state.getEntity(t) instanceof Wall){
+            if(state.getEntity(t) instanceof Wall || state.getEntity(t) instanceof Player){
                 return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
-            }
-            else if(state.getEntity(t) instanceof Box){
-                Position m=new Position(t.x()-1,t.y());
-                if(state.getEntity(m) instanceof Wall){
+            } else if(state.getEntity(t) instanceof Box){
+                if(state.thismap.box.get(action.getInitiator()).contains(t)){
+                    Position m=new Position(t.x()-1,t.y());
+                    if(state.getEntity(m) instanceof Wall){
+                        return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
+                    } else{
+                        state.move(t,m);
+                    }
+                } else{
                     return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
-                }
-                else{
-                    state.move(t,m);
                 }
             }
             state.move(playerposition,t);
             state.checkpoint();
             return new ActionResult.Success(action);
-        }
-        else if(action instanceof Move.Right){
+        } else if(action instanceof Move.Right){
             Position t= new Position(playerposition.x()+1,playerposition.y());
-            if(state.getEntity(t) instanceof Wall){
+            if(state.getEntity(t) instanceof Wall || state.getEntity(t) instanceof Player){
                 return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
-            }
-            else if(state.getEntity(t) instanceof Box){
-                Position m=new Position(t.x()+1,t.y());
-                if(state.getEntity(m) instanceof Wall){
+            } else if(state.getEntity(t) instanceof Box){
+                if(state.thismap.box.get(action.getInitiator()).contains(t)){
+                    Position m=new Position(t.x()+1,t.y());
+                    if(state.getEntity(m) instanceof Wall){
+                        return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
+                    } else{
+                        state.move(t,m);
+
+                    }
+                } else{
                     return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
-                }
-                else{
-                    state.move(t,m);
                 }
             }
             state.move(playerposition,t);
             state.checkpoint();
             return new ActionResult.Success(action);
-        }
-        else {
+        } else {
             return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
         }
-
     }
 }

@@ -7,7 +7,6 @@ import hk.ust.comp3021.entities.Wall;
 import hk.ust.comp3021.game.GameState;
 import hk.ust.comp3021.game.Position;
 import hk.ust.comp3021.game.RenderingEngine;
-import hk.ust.comp3021.utils.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
@@ -35,8 +34,8 @@ public class TerminalRenderingEngine implements RenderingEngine {
                 final var charToPrint = switch (entity) {
                     // TODO
                     case Wall ignored -> '#';
-                    case Box b -> 'a';
-                    case Player p -> 'A';
+                    case Box b -> Character.toLowerCase((char)(b.getPlayerId()+65));
+                    case Player p -> (char)(p.getId()+65);
                     case Empty ignored -> ' ';
                     case null -> ' ';
                 };
