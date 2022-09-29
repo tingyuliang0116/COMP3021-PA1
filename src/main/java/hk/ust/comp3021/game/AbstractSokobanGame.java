@@ -56,6 +56,7 @@ public abstract class AbstractSokobanGame implements SokobanGame {
                 }
             }
             state.move(playerposition,t);
+            state.checkpoint();
             return new ActionResult.Success(action);
         }
         else if(action instanceof Move.Up){
@@ -73,6 +74,7 @@ public abstract class AbstractSokobanGame implements SokobanGame {
                 }
             }
             state.move(playerposition,t);
+            state.checkpoint();
             return new ActionResult.Success(action);
         }
         else if(action instanceof Move.Left){
@@ -90,6 +92,7 @@ public abstract class AbstractSokobanGame implements SokobanGame {
                 }
             }
             state.move(playerposition,t);
+            state.checkpoint();
             return new ActionResult.Success(action);
         }
         else if(action instanceof Move.Right){
@@ -107,6 +110,7 @@ public abstract class AbstractSokobanGame implements SokobanGame {
                 }
             }
             state.move(playerposition,t);
+            state.checkpoint();
             return new ActionResult.Success(action);
         }
         else {

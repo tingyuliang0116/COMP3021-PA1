@@ -47,7 +47,6 @@ public class GameMap {
         this.undolimit=undoLimit;
     }
     public GameMap(int maxWidth, int maxHeight, Set<Position> destinations, int undoLimit,Set<Position> wall, HashMap<Integer,Position> player,HashMap<Integer,List<Position>> box) {
-        // TODO
         this.wall=wall;
         this.box=box;
         this.player=player;
@@ -200,7 +199,6 @@ public class GameMap {
         }
     }
     public void removeEntity(Position position, Entity entity) {
-        // TODO`
         if(entity instanceof Box){
             box.get(((Box) entity).getPlayerId()).remove(position);
         }

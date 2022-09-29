@@ -167,7 +167,6 @@ public class GameState {
         }
         return false;
     }
-
     /**
      * Move the entity from one position to another.
      * This method assumes the validity of this move is ensured.
@@ -181,6 +180,7 @@ public class GameState {
         Entity fr=getEntity(from);
         thismap.removeEntity(from,fr);
         thismap.putEntity(to,fr);
+
     }
 
     /**

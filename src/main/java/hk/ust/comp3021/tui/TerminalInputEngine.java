@@ -37,7 +37,7 @@ public class  TerminalInputEngine implements InputEngine {
         // Feel free to change it if you do not like it.
         final var inputLine = terminalScanner.nextLine();
         // TODO
-        if(inputLine.equals("exit")){
+        if(inputLine.equals(StringResources.EXIT_COMMAND_TEXT)){
             return new Exit(0);
         }
         else if(inputLine.equals("A") || inputLine.equals("H")){
@@ -55,7 +55,6 @@ public class  TerminalInputEngine implements InputEngine {
         else if(inputLine.equals("U")){
             return new Undo(0);
         }
-        System.out.println(4);
         return new InvalidInput(0, StringResources.INVALID_INPUT_MESSAGE);
     }
 }
