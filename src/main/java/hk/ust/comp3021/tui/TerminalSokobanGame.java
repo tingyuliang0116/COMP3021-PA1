@@ -25,7 +25,7 @@ public class TerminalSokobanGame extends AbstractSokobanGame {
      */
     public TerminalSokobanGame(GameState gameState, TerminalInputEngine inputEngine, TerminalRenderingEngine renderingEngine) {
         super(gameState);
-        this.inputEngine = inputEngine;
+        this.inputEngine=inputEngine;
         this.renderingEngine = renderingEngine;
         // TODO
         // Check the number of players
@@ -37,6 +37,7 @@ public class TerminalSokobanGame extends AbstractSokobanGame {
     @Override
     public void run() {
         // TODO
+        
 
     }
 }

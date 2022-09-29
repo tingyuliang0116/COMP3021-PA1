@@ -6,9 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The state of the Sokoban Game.
@@ -28,16 +26,45 @@ public class GameState {
      *
      * @param map the game map from which to create this game state.
      */
-    final GameMap initmap;
     GameMap thismap;
-    GameState checkpoint;
+    List<GameMap> p=new ArrayList<>();
+    int width;
+    int height;
+    Set<Position> destination=new HashSet<>();
+    int undolimit;
+    Set<Position> wall=new HashSet<>();
+    HashMap<Integer,Position> player=new HashMap<>();
+    HashMap<Integer,List<Position>> box=new HashMap<>();
 
     public GameState(@NotNull GameMap map) {
         // TODO
-        initmap=map;
+        for( char c = 'a'; c <= 'z'; ++c){
+            player.put((int)(c-'a'),null);
+            box.put((int)(c-'a'),null);
+        }
+        width=map.width;
+        height=map.height;
+        undolimit=map.undolimit;
+        for(Position t:map.destination){
+            destination.add(new Position(t.x(),t.y()));
+        }
+        for(Position t:map.wall){
+            wall.add(new Position(t.x(),t.y()));
+        }
+        for(int i=0;i<26;i++){
+            if(map.player.get(i)!=null){
+                player.put(i,new Position(map.player.get(i).x(),map.player.get(i).y()));
+            }
+            if(map.box.get(i)!=null){
+                box.put(i,new ArrayList<>());
+                for(int j=0;j<map.box.get(i).size();j++){
+                    box.get(i).add(new Position(map.box.get(i).get(j).x(),map.box.get(i).get(j).y()));
+                }
+            }
+        }
         thismap=map;
+        p.add(new GameMap(width,height,destination,undolimit,wall,player,box));
     }
-
     /**
      * Get the current position of the player with the given id.
      *
@@ -121,9 +148,18 @@ public class GameState {
     public boolean isWin() {
 // TODO
         Set<Position> tes=thismap.destination;
-        for(Position a:thismap.destination){
-            if(thismap.getEntity(a) instanceof Box){
-                tes.remove(a);
+
+        Set<Position> b=new HashSet<>();
+        for(int i=0;i<26;i++){
+            if(thismap.box.get(i)!=null){
+                for(int j=0;j<thismap.box.get(i).size();j++){
+                    b.add(thismap.box.get(i).get(j));
+                }
+            }
+        }
+        for(Position l:b){
+            if(thismap.destination.contains(l)){
+                tes.remove(l);
             }
         }
         if(tes.size()==0){
@@ -143,8 +179,8 @@ public class GameState {
     public void move(Position from, Position to) {
         // TODO
         Entity fr=getEntity(from);
-        thismap.putEntity(to,fr);
         thismap.removeEntity(from,fr);
+        thismap.putEntity(to,fr);
     }
 
     /**
@@ -155,10 +191,10 @@ public class GameState {
      * Checkpoint is used in {@link GameState#undo()}.
      * Every undo actions reverts the game state to the last checkpoint.
      */
+
     public void checkpoint() {
         // TODO
-        checkpoint=new GameState(thismap);
-
+        p.add(thismap);
     }
 
     /**
@@ -170,12 +206,13 @@ public class GameState {
      */
     public void undo() {
         // TODO
-        if(checkpoint==null){
-            thismap=initmap;
+        if(p.size()==2){
+            thismap=p.get(0);
         }
         else{
-            thismap=checkpoint.thismap;
+            thismap=p.get(p.size()-2);
         }
+        thismap.undolimit--;
     }
 
     /**

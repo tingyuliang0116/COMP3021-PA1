@@ -101,7 +101,7 @@ class GameStateTest {
             ######
             #.Aa@#
             #..a@#
-            ######
+            ######    
             """
         ));
         gameState.move(Position.of(3, 1), Position.of(4, 1));

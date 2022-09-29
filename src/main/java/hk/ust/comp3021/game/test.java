@@ -59,9 +59,24 @@ public class test {
                 }
             }
         }
-        List<Position> tes=box.get(0);
-
+        Set<Position> tes=des;
         System.out.println(tes);
+        Position t=new Position(4,1);
+        System.out.println(des.contains(t));
+        Set<Position> b=new HashSet<>();
+        b.add(new Position(4,1));
+        b.add(new Position(4,2));
+        for(Position l:b){
+            if(des.contains(l)){
+                System.out.println("this");
+                tes.remove(b);
+            }
+        }
+        if(tes.size()==0){
+            System.out.println(true);
+        }
+        System.out.println(false);
+
 
 
 

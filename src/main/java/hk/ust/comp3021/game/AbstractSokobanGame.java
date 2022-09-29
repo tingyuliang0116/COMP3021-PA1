@@ -46,15 +46,13 @@ public abstract class AbstractSokobanGame implements SokobanGame {
             if(state.getEntity(t) instanceof Wall){
                 return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
             }
-            else if(state.getEntity(t) instanceof Box){
+            else if(state.thismap.box.get(action.getInitiator()).contains(t)){
                 Position m=new Position(t.x(),t.y()+1);
                 if(state.getEntity(m) instanceof Wall){
                     return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
                 }
                 else{
-                    state.move(playerposition,t);
                     state.move(t,m);
-                    return new ActionResult.Success(action);
                 }
             }
             state.move(playerposition,t);
@@ -71,9 +69,7 @@ public abstract class AbstractSokobanGame implements SokobanGame {
                     return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
                 }
                 else{
-                    state.move(playerposition,t);
                     state.move(t,m);
-                    return new ActionResult.Success(action);
                 }
             }
             state.move(playerposition,t);
@@ -90,9 +86,7 @@ public abstract class AbstractSokobanGame implements SokobanGame {
                     return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
                 }
                 else{
-                    state.move(playerposition,t);
                     state.move(t,m);
-                    return new ActionResult.Success(action);
                 }
             }
             state.move(playerposition,t);
@@ -109,9 +103,7 @@ public abstract class AbstractSokobanGame implements SokobanGame {
                     return new ActionResult.Failed(action,StringResources.INVALID_INPUT_MESSAGE);
                 }
                 else{
-                    state.move(playerposition,t);
                     state.move(t,m);
-                    return new ActionResult.Success(action);
                 }
             }
             state.move(playerposition,t);

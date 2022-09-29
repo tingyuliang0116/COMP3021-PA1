@@ -46,6 +46,7 @@ class TerminalSokobanGameTest {
         verify(gameState, atLeastOnce()).getUndoQuota();
         verify(gameState, atLeast(0)).isWin();
         verify(renderingEngine, atLeastOnce()).message(any());
+
     }
 
     @Tag(TestKind.PUBLIC)
