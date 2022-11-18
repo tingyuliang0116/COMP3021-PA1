@@ -3,6 +3,7 @@ package hk.ust.comp3021.replay;
 
 import hk.ust.comp3021.actions.ActionResult;
 //import hk.ust.comp3021.actions.Exit;
+import hk.ust.comp3021.actions.Exit;
 import hk.ust.comp3021.game.AbstractSokobanGame;
 import hk.ust.comp3021.game.GameState;
 import hk.ust.comp3021.game.InputEngine;
@@ -133,32 +134,54 @@ public class ReplaySokobanGame extends AbstractSokobanGame {
     private class InputEngineRunnable implements Runnable {
         private final int index;
         private final InputEngine inputEngine;
-        static Object lock = new Object();
-        static int turn = 0;
+
         private InputEngineRunnable(int index, @NotNull InputEngine inputEngine) {
             this.index = index;
             this.inputEngine = inputEngine;
         }
+
         @Override
         public void run() {
             // TODO: modify this method to implement the requirements.
-            synchronized (lock){
-                try{
-                    while (!shouldStop()) {
+            var exit = false;
+            try {
+                while (true) {
+                    final var action = inputEngine.fetchAction();
+                    lock.lock();
+                    if (firsttime) {
+                        firstcondition.await();
+                    }
+                    if (shouldStop()) {
+                        firstcondition.signalAll();
+                        rrCondition.signalAll();
+                        lock.unlock();
+                        break;
+                    }
+                    if (mode == Mode.ROUND_ROBIN) {
                         while (turn != index) {
-                            lock.wait();
+                            rrCondition.await();
                         }
-                        final var action = inputEngine.fetchAction();
+                    }
+                    if (!exit) {
                         final var result = processAction(action);
                         if (result instanceof ActionResult.Failed failed) {
                             renderingEngine.message(failed.getReason());
                         }
-                        turn = (turn + 1) % (inputEngines.size());
-                        lock.notifyAll();
+                        if (action instanceof Exit) {
+                            exitInputEngines++;
+                            exit = true;
+                        } else {
+                            after=true;
+                        }
                     }
-                }catch (InterruptedException e){
-                    e.printStackTrace();
+                    if (mode == Mode.ROUND_ROBIN) {
+                        turn=((turn + 1) % inputEngines.size());
+                        rrCondition.signalAll();
+                    }
+                    lock.unlock();
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
